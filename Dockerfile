@@ -16,7 +16,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
  apt-get update && \
  apt-get install -y python-software-properties software-properties-common postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
 
-RUN mkdir /etc/ssl/private-copy; mv /etc/ssl/private/* /etc/ssl/private-copy/; rm -r /etc/ssl/private; mv /etc/ssl/private-copy /etc/ssl/private; chmod -R 0700 /etc/ssl/private; chown -R postgres /etc/ssl/private
+RUN mkdir /etc/ssl/private-copy; mv /etc/ssl/private/* /etc/ssl/private-copy/; chmod -R 0700 /etc/ssl/private-copy; chown -R postgres /etc/ssl/private-copy
 
 
 # Note: The official Debian and Ubuntu images automatically ``apt-get clean``
