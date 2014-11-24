@@ -39,6 +39,8 @@ RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.co
 # And add ``listen_addresses`` to ``/etc/postgresql/9.3/main/postgresql.conf``
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
+RUN sed -i '/\/etc\/ssl\/private\//s//\/etc\/ssl\/private-copy\//g' /etc/postgresql/9.3/main/postgresql.conf
+
 ADD docker-postgres /usr/local/bin/docker-postgres
 RUN chmod +x /usr/local/bin/docker-postgres
 
