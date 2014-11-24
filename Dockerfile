@@ -14,8 +14,10 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > /etc
 #  them by prefixing each apt-get statement with DEBIAN_FRONTEND=noninteractive
 RUN export DEBIAN_FRONTEND=noninteractive && \
  apt-get update && \
- apt-get install -y python-software-properties software-properties-common postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3 && \
- chmod 711 /etc/ssl/private
+ apt-get install -y python-software-properties software-properties-common postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
+
+RUN mkdir /etc/ssl/private-copy; mv /etc/ssl/private/* /etc/ssl/private-copy/; rm -r /etc/ssl/private; mv /etc/ssl/private-copy /etc/ssl/private; chmod -R 0700 /etc/ssl/private; chown -R postgres /etc/ssl/private
+
 
 # Note: The official Debian and Ubuntu images automatically ``apt-get clean``
 # after each ``apt-get``
@@ -27,9 +29,9 @@ USER postgres
 # then create a database `docker` owned by the ``docker`` role.
 # Note: here we use ``&&\`` to run commands one after the other - the ``\``
 #       allows the RUN command to span multiple lines.
-RUN    /etc/init.d/postgresql start &&\
-    psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
-    createdb -O docker docker
+#RUN    /etc/init.d/postgresql start &&\
+#    psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
+#    createdb -O docker docker
 
 # Adjust PostgreSQL configuration so that remote connections to the
 # database are possible. 
@@ -38,6 +40,9 @@ RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.co
 # And add ``listen_addresses`` to ``/etc/postgresql/9.3/main/postgresql.conf``
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
+ADD docker-postgres /usr/local/bin/docker-postgres
+RUN chmod +x /usr/local/bin/docker-postgres
+
 # Expose the PostgreSQL port
 EXPOSE 5432
 
@@ -45,5 +50,4 @@ EXPOSE 5432
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
 # Set the default command to run when starting the container
-CMD ["/usr/lib/postgresql/9.3/bin/postgres", "-D", "/var/lib/postgresql/9.3/main", "-c", "config_file=/etc/postgresql/9.3/main/postgresql.conf"]
-
+CMD ["/usr/local/bin/docker-postgres"]
